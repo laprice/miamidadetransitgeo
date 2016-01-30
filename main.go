@@ -3,10 +3,10 @@ package main
 import "net/http"
 import "io/ioutil"
 import "encoding/xml"
-import "encoding/json"
 import "log"
 
-type Record struct {
+//Record is a single update of a single bus location
+type Record struct { 
 	BusID            string `xml:"Record>BusID"`
 	BusName          string `xml:"Record>BusName"`
 	Latitude         string `xml:"Record>Latitude"`
@@ -21,16 +21,13 @@ type Record struct {
 	LocationUpdated  string `xml:"Record>LocationUpdated"`
 }
 
-func parserecord(body string) (Record) {
-	r := new(Record)
-	err = xml.Unmarshal(body, &r)
+func parserecord(r **Record, body []byte) {
+	err := xml.Unmarshal(body, r)
 	if err != nil {
 		log.Fatal("Unmarshall failed", err)
 	}
-	return r
+	
 }
-
-
 
 func main() {
 	log.Println("starting")
@@ -44,12 +41,8 @@ func main() {
 		log.Fatal("could not read Response Body")
 	}
 	resp.Body.Close()
-	r := parsercord(body)
+	r := new(Record)
+	parserecord(&r, body)
 	log.Println(r.BusName)
 	log.Printf("POINT(%s %s)", r.Longitude, r.Latitude)
-	j, err := json.Marshal(r)
-	if err != nil {
-		log.Fatal("cannot marshal json")
-	}
-	log.Println(string(j))
 }
