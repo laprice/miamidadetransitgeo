@@ -56,5 +56,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Print(string(j))
+	fmt.Println(string(j))
 }
