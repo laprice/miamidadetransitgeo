@@ -52,7 +52,7 @@ func main() {
 	parserecord(&r, body)
 	log.Println(r.BusName)
 	log.Printf("POINT(%s %s)", r.Longitude, r.Latitude)
-	j, err := json.MarshalIndent(r, "", "  ")
+	j, err := json.Marshal(r)
 	if err != nil {
 		log.Fatal(err)
 	}
