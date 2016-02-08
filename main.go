@@ -4,24 +4,26 @@ import "net/http"
 import "io/ioutil"
 import "os"
 import "encoding/xml"
-import "encoding/json"
 import "log"
 import "fmt"
+import (
+	gj "github.com/kpawlik/geojson"
+)
 
 //Record is a single update of a single bus location
 type Record struct {
-	BusID            string `xml:"Record>BusID"`
-	BusName          string `xml:"Record>BusName"`
-	Latitude         string `xml:"Record>Latitude"`
-	Longitude        string `xml:"Record>Longitude"`
-	RouteID          string `xml:"Record>RouteID"`
-	TripID           string `xml:"Record>TripID"`
-	Direction        string `xml:"Record>Direction"`
-	ServiceDirection string `xml:"Record>ServiceDirection"`
-	Service          string `xml:"Record>Service"`
-	ServiceName      string `xml:"Record>ServiceName"`
-	TripHeadsign     string `xml:"Record>TripHeadsign"`
-	LocationUpdated  string `xml:"Record>LocationUpdated"`
+	BusID            string  `xml:"Record>BusID"`
+	BusName          string  `xml:"Record>BusName"`
+	Latitude         float64 `xml:"Record>Latitude"`
+	Longitude        float64 `xml:"Record>Longitude"`
+	RouteID          string  `xml:"Record>RouteID"`
+	TripID           string  `xml:"Record>TripID"`
+	Direction        string  `xml:"Record>Direction"`
+	ServiceDirection string  `xml:"Record>ServiceDirection"`
+	Service          string  `xml:"Record>Service"`
+	ServiceName      string  `xml:"Record>ServiceName"`
+	TripHeadsign     string  `xml:"Record>TripHeadsign"`
+	LocationUpdated  string  `xml:"Record>LocationUpdated"`
 }
 
 func parserecord(r **Record, body []byte) {
@@ -30,6 +32,19 @@ func parserecord(r **Record, body []byte) {
 		log.Fatal("Unmarshall failed", err)
 	}
 
+}
+
+func makeFeaturefromRecord(r *Record) string {
+	var f *gj.Feature
+	lon := gj.Coord(r.Longitude)
+	lat :=  gj.Coord(r.Latitude)
+	p := gj.NewPoint(gj.Coordinate{lon, lat})
+	f = gj.NewFeature(p, nil, nil)
+	gjstr, err := gj.Marshal(f)
+	if err != nil {
+		log.Fatal("geojson marshall failed", err)
+	}
+	return gjstr
 }
 
 func init() {
@@ -51,10 +66,7 @@ func main() {
 	r := new(Record)
 	parserecord(&r, body)
 	log.Println(r.BusName)
-	log.Printf("POINT(%s %s)", r.Longitude, r.Latitude)
-	j, err := json.Marshal(r)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(string(j))
+	log.Printf("POINT(%f %f)", r.Longitude, r.Latitude)
+	j := makeFeaturefromRecord(r)
+	fmt.Println(j)
 }
