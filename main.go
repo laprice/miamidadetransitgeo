@@ -39,7 +39,15 @@ func makeFeaturefromRecord(r *Record) string {
 	lon := gj.Coord(r.Longitude)
 	lat :=  gj.Coord(r.Latitude)
 	p := gj.NewPoint(gj.Coordinate{lon, lat})
-	f = gj.NewFeature(p, nil, nil)
+	id := r.BusID
+	props := make(map[string]interface{})
+	props["BusName"] = r.BusName
+	props["RouteID"] = r.RouteID
+	props["TripID"] = r.TripID
+	props["TripHeadsign"] = r.TripHeadsign
+	props["Service"] = r.Service
+	props["LocationUpdated"] = r.LocationUpdated
+	f = gj.NewFeature(p, props, id)
 	gjstr, err := gj.Marshal(f)
 	if err != nil {
 		log.Fatal("geojson marshall failed", err)
