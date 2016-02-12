@@ -61,7 +61,7 @@ func init() {
 
 func main() {
 	log.Println("starting")
-	resp, err := http.Get("http://www.miamidade.gov/transit/WebServices/Buses/?RouteID=7")
+	resp, err := http.Get("http://www.miamidade.gov/transit/WebServices/Buses/?RouteID=8")
 	if err != nil {
 		log.Fatal("error fetching url", err)
 	}
